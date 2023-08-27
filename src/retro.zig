@@ -458,7 +458,10 @@ pub const env = struct {
             opengles3,
             opengles_version,
             vulkan,
-            direct3d,
+            d3d11,
+            d3d10,
+            d3d12,
+            d3d9,
             _,
         };
 
