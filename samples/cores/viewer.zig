@@ -25,6 +25,12 @@ pub fn init() @This() {
 
 pub fn deinit(_: *@This()) void {}
 
+pub fn run(core: *@This()) void {
+    retro.input.poll();
+    retro.audio.sample(0, 0);
+    retro.video.refresh(core.framebuffer, core.width, core.height, core.pitch);
+}
+
 pub fn loadGame(core: *@This(), game: ?*const retro.GameInfo) bool {
     var image = img.Image.fromMemory(retro.allocator, game.?.dataSlice().?) catch {
         std.log.err("Failed to load image.", .{});
@@ -104,10 +110,4 @@ pub fn getSystemAvInfo(core: *@This()) retro.SystemAvInfo {
         },
         .timing = .{ .fps = 60, .sample_rate = 0 },
     };
-}
-
-pub fn run(core: *@This()) void {
-    retro.input.poll();
-    retro.audio.sample(0, 0);
-    retro.video.refresh(core.framebuffer, core.width, core.height, core.pitch);
 }

@@ -11,6 +11,9 @@ pub const system_info: retro.SystemInfo = .{
     .library_version = "v1",
 };
 
+const width = 320;
+const height = 240;
+
 var hw_render = retro.env.hw.RenderCallback{
     .context_type = .vulkan,
     .version_major = vk.API_VERSION_1_0,
@@ -26,8 +29,23 @@ var vulkan: ?*const retro.env.hw.vulkan.RenderInterface = null;
 const Context = @import("Context.zig");
 var context: Context = undefined;
 
-const width = 320;
-const height = 240;
+fn contextDestroy() callconv(.C) void {
+    if (vulkan == null) return;
+    std.log.info("Context destroy!", .{});
+    context.deinit(vulkan.?.device);
+    vulkan = null;
+    // TODO: std.mem.zeroInit(@TypeOf(context), &context);
+}
+
+fn getApplicationInfo() callconv(.C) *const vk.ApplicationInfo {
+    return &.{
+        .p_application_name = "libretro-test-vulkan",
+        .application_version = 0,
+        .p_engine_name = "libretro-test-vulkan",
+        .engine_version = 0,
+        .api_version = vk.API_VERSION_1_0,
+    };
+}
 
 pub fn setEnvironment() void {
     retro.env.log.init();
@@ -39,18 +57,6 @@ pub fn init() @This() {
 }
 
 pub fn deinit(_: *@This()) void {}
-
-pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
-    return .{
-        .geometry = .{
-            .base_width = width,
-            .base_height = height,
-            .max_width = width,
-            .max_height = height,
-        },
-        .timing = .{ .fps = 60, .sample_rate = 0 },
-    };
-}
 
 pub fn run(_: *@This()) void {
     retro.input.poll();
@@ -112,24 +118,6 @@ fn contextReset() callconv(.C) void {
     };
 }
 
-fn contextDestroy() callconv(.C) void {
-    if (vulkan == null) return;
-    std.log.info("Context destroy!", .{});
-    context.deinit(vulkan.?.device);
-    vulkan = null;
-    // TODO: std.mem.zeroInit(@TypeOf(context), &context);
-}
-
-fn getApplicationInfo() callconv(.C) *const vk.ApplicationInfo {
-    return &.{
-        .p_application_name = "libretro-test-vulkan",
-        .application_version = 0,
-        .p_engine_name = "libretro-test-vulkan",
-        .engine_version = 0,
-        .api_version = vk.API_VERSION_1_0,
-    };
-}
-
 pub fn loadGame(_: *@This(), _: ?*const retro.GameInfo) bool {
     if (!retro.env.hw.setRenderCallback(&hw_render)) {
         std.log.err("Failed to initialize HW context.", .{});
@@ -143,4 +131,16 @@ pub fn loadGame(_: *@This(), _: ?*const retro.GameInfo) bool {
     _ = retro.env.hw.setRenderContextNegotiationInterface(@ptrCast(&iface));
 
     return true;
+}
+
+pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
+    return .{
+        .geometry = .{
+            .base_width = width,
+            .base_height = height,
+            .max_width = width,
+            .max_height = height,
+        },
+        .timing = .{ .fps = 60, .sample_rate = 0 },
+    };
 }

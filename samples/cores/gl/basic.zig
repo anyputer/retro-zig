@@ -9,7 +9,28 @@ pub const system_info: retro.SystemInfo = .{
     .library_version = "0.1.0",
 };
 
+var hw_render = retro.env.hw.RenderCallback{
+    .context_type = .opengl,
+    .contextReset = contextReset,
+    .contextDestroy = contextDestroy,
+    .getCurrentFramebuffer = undefined, // to be set by frontend
+    .getProcAddress = undefined, // to be set by frontend
+    .bottom_left_origin = true,
+};
 var gl_dispatch_table: gl.DispatchTable = undefined;
+
+fn contextReset() callconv(.C) void {
+    _ = gl_dispatch_table.init(struct {
+        pub fn getCommandFnPtr(prefixed_command_name: [:0]const u8) ?retro.env.ProcAddress {
+            return hw_render.getProcAddress(prefixed_command_name);
+        }
+    });
+    gl.makeDispatchTableCurrent(&gl_dispatch_table);
+}
+
+fn contextDestroy() callconv(.C) void {
+    gl.makeDispatchTableCurrent(null);
+}
 
 top_point_x: f32 = 0,
 top_point_y: f32 = 0.5,
@@ -21,30 +42,6 @@ bg_color: [4]f32 = cornflower_blue,
 const cornflower_blue = [4]f32{ 0.392, 0.584, 0.929, 0 };
 const magenta = [4]f32{ 1, 0, 1, 0 };
 const yellow = [4]f32{ 1, 1, 0, 0 };
-
-const GlDispatchTableLoader = struct {
-    pub fn getCommandFnPtr(prefixed_command_name: [:0]const u8) ?retro.env.ProcAddress {
-        return hw_render.getProcAddress(prefixed_command_name);
-    }
-};
-
-fn contextReset() callconv(.C) void {
-    _ = gl_dispatch_table.init(GlDispatchTableLoader);
-    gl.makeDispatchTableCurrent(&gl_dispatch_table);
-}
-
-fn contextDestroy() callconv(.C) void {
-    gl.makeDispatchTableCurrent(null);
-}
-
-var hw_render = retro.env.hw.RenderCallback{
-    .context_type = .opengl,
-    .contextReset = contextReset,
-    .contextDestroy = contextDestroy,
-    .getCurrentFramebuffer = undefined, // to be set by frontend
-    .getProcAddress = undefined, // to be set by frontend
-    .bottom_left_origin = true,
-};
 
 const width = 640;
 const height = 480;
