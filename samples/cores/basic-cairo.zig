@@ -42,6 +42,7 @@ pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
 
 pub fn run(core: *@This()) void {
     retro.input.poll();
+    retro.audio.sample(0, 0);
     retro.video.refresh(
         c.cairo_image_surface_get_data(core.surface),
         @intCast(c.cairo_image_surface_get_width(core.surface)),

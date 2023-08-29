@@ -48,6 +48,7 @@ pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
 
 pub fn run(_: *@This()) void {
     retro.input.poll();
+    retro.audio.sample(0, 0);
     retro.video.refresh(&framebuffer, width, height, pitch);
 }
 

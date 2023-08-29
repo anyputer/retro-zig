@@ -79,6 +79,8 @@ pub fn run(_: *@This()) void {
     };
     vulkan.?.setImage(handle, @ptrCast(&context.images[context.index]), 0, null, vk.QUEUE_FAMILY_IGNORED);
     vulkan.?.setCommandBuffers(handle, 1, @ptrCast(&context.cmd[context.index]));
+
+    retro.audio.sample(0, 0);
     retro.video.refresh(@ptrCast(retro.env.hw.frame_buffer_valid), width, height, 0);
 }
 

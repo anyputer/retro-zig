@@ -123,6 +123,7 @@ pub fn run(core: *@This()) void {
     gl.vertex2f(core.top_point_x, core.top_point_y);
     gl.end();
 
+    retro.audio.sample(0, 0);
     retro.video.refresh(retro.env.hw.frame_buffer_valid, width, height, 0);
 }
 
