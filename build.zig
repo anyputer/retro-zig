@@ -47,7 +47,7 @@ pub fn build(b: *std.build.Builder) void {
         });
 
         // TODO: don't prefix artifact name with lib on linux, and turn dashes into underscores
-        const retro_mod = b.addModule("retro", .{ .source_file = .{ .path = "src/retro.zig" } });
+        const retro_mod = b.addModule("retro", .{ .source_file = .{ .path = "retro.zig" } });
         lib.addModule("retro", retro_mod);
         lib.rdynamic = true;
         if (!lib.target.toTarget().isWasm()) lib.linkLibC();
