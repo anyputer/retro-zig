@@ -1,0 +1,10 @@
+.{
+    .name = "retro",
+    .version = "0.1.0",
+    .dependencies = .{
+        .zigimg = .{
+            .url = "https://github.com/zigimg/zigimg/archive/40ddb16.tar.gz",
+            .hash = "12208c69b00540fe3f38893800fb6c89a9fe27b4a687de5d0462e498a43db4caeec0",
+        },
+    },
+}

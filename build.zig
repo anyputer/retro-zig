@@ -26,6 +26,11 @@ pub fn build(b: *std.build.Builder) void {
             .desc = "Showcasing software rendering with the Cairo 2D graphics library",
         },
         .{
+            .name = "viewer",
+            .path = "samples/cores/viewer.zig",
+            .desc = "A simple image viewer using zigimg",
+        },
+        .{
             .name = "basic-gl",
             .path = "samples/cores/gl/basic.zig",
             .desc = "A simple OpenGL triangle demo",
@@ -45,6 +50,12 @@ pub fn build(b: *std.build.Builder) void {
             .optimize = optimize,
             .single_threaded = core.single_threaded,
         });
+
+        const img = b.dependency("zigimg", .{
+            .target = target,
+            .optimize = optimize,
+        });
+        lib.addModule("zigimg", img.module("zigimg"));
 
         // TODO: don't prefix artifact name with lib on linux, and turn dashes into underscores
         const retro_mod = b.addModule("retro", .{ .source_file = .{ .path = "retro.zig" } });
