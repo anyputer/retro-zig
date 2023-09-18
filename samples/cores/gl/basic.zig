@@ -64,7 +64,6 @@ pub fn init() @This() {
 pub fn deinit(_: *@This()) void {}
 
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
-    if (!retro.env.setPixelFormat(.rgb565)) retro.env.exit();
     return .{
         .geometry = .{
             .base_width = width,
