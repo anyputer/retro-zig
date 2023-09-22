@@ -100,12 +100,51 @@ pub const Message = extern struct {
     frames: c_uint,
 };
 
+pub const MessageTarget = enum(c_int) {
+    all,
+    osd,
+    log,
+    _,
+};
+
+pub const MessageType = enum(c_int) {
+    notification,
+    notification_alt,
+    status,
+    progress,
+    _,
+};
+
+pub const MessageExt = extern struct {
+    msg: [*:0]const u8,
+    duration: c_uint,
+    priority: c_uint,
+    level: env.log.Level,
+    target: MessageTarget,
+    type: MessageType,
+    progress: i8,
+};
+
 pub const SystemInfo = extern struct {
     library_name: [*:0]const u8,
     library_version: [*:0]const u8,
     valid_extensions: ?[*:0]const u8 = null,
     need_fullpath: bool = false,
     block_extract: bool = false,
+};
+
+pub const GameInfoExt = extern struct {
+    full_path: ?[*:0]const u8,
+    archive_path: ?[*:0]const u8,
+    archive_file: ?[*:0]const u8,
+    dir: [*:0]const u8,
+    name: [*:0]const u8,
+    ext: [*:0]const u8,
+    meta: [*:0]const u8,
+    data: ?[*]const u8,
+    size: usize,
+    file_in_archive: bool,
+    persistent_data: bool,
 };
 
 pub const GameGeometry = extern struct {
@@ -970,6 +1009,14 @@ pub const input = struct {
         pub fn count(port: c_uint) i16 {
             return input.pointer.state(port, .count);
         }
+    };
+
+    pub const Descriptor = extern struct {
+        port: c_uint,
+        device: Device,
+        index: c_uint,
+        id: c_uint,
+        description: [*:0]const u8,
     };
 };
 
