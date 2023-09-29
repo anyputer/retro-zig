@@ -698,7 +698,6 @@ pub const env = struct {
                 pub const version = 5;
             };
         };
-
         pub fn getRenderInterface(interface: **const RenderInterfaceBase) bool {
             return callback(.get_hw_render_interface, @ptrCast(interface));
         }
@@ -815,6 +814,12 @@ pub const env = struct {
         //}
     };
 
+    pub fn getUsername() ?[*:0]const u8 {
+        var name: ?[*:0]const u8 = null;
+        _ = callback(.get_username, @ptrCast(&name));
+        return name;
+    }
+
     pub const Language = enum(c_int) {
         english,
         japanese,
@@ -861,11 +866,26 @@ pub const env = struct {
         return if (callback(.get_language, &lang)) lang else null;
     }
 
-    pub fn getUsername() ?[*:0]const u8 {
-        var name: ?[*:0]const u8 = null;
-        _ = callback(.get_username, @ptrCast(&name));
-        return name;
-    }
+    pub const MemoryAccess = packed struct(c_uint) {
+        write: bool,
+        read: bool,
+        _: u30 = 0,
+    };
+
+    pub const MemoryType = packed struct(c_uint) {
+        cached: bool,
+        _: u31 = 0,
+    };
+
+    pub const Framebuffer = extern struct {
+        data: [*]u8,
+        width: c_uint,
+        height: c_uint,
+        pitch: usize,
+        format: PixelFormat,
+        access_flags: MemoryAccess,
+        memory_flags: MemoryType,
+    };
 };
 
 pub const video = struct {
