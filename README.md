@@ -11,11 +11,12 @@ Hand-written libretro bindings for the Zig programming language.
 My hope is that this will be useful for people creating emulators and game engines in Zig, for years to come.
 Consider giving a ⭐ if you like what you see!
 
-⚠️ This is currently missing a bunch of functionality, and is not yet stable. ⚠️
+> [!WARNING]
+> This is currently missing a bunch of functionality, and is not yet stable. Furthermore, while Zig itself is a very nice little language, you should expect breaking changes. Nonetheless, have fun!
 
 ## Getting started
 ### Prerequisites
-- ⚡ Zig 0.11 (latest as of July 2023)
+- ⚡ Zig 0.12 dev (latest as of February 2024)
 - 👾 RetroArch or another libretro frontend
 - 🖼️ Optional: Cairo graphics library (to build the Cairo example)
 

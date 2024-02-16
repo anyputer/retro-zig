@@ -1,7 +1,7 @@
 const std = @import("std");
 
 // TODO: support homebrew targets
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -55,13 +55,36 @@ pub fn build(b: *std.build.Builder) void {
             .target = target,
             .optimize = optimize,
         });
-        lib.addModule("zigimg", img.module("zigimg"));
+        lib.root_module.addImport("zigimg", img.module("zigimg"));
+
+        const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
+            .api = .gl,
+            .version = .@"4.1",
+            .profile = .compatibility,
+        });
+        lib.root_module.addImport("gl", gl_bindings);
+
+        lib.root_module.addImport("vulkan", b.dependency(
+            "vulkan_zig",
+            // TODO: don't hardcode this path
+            .{ .registry = @as([]const u8, "/usr/share/vulkan/registry/vk.xml") },
+        ).module("vulkan-zig"));
+
+        const ShaderCompileStep = @import("vulkan_zig").ShaderCompileStep;
+        const shaders = ShaderCompileStep.create(
+            b,
+            &.{ "glslc", "-Os" },
+            "-o",
+        );
+        shaders.add("vert", "samples/cores/vulkan/shaders/triangle.vert", .{});
+        shaders.add("frag", "samples/cores/vulkan/shaders/triangle.frag", .{});
+        lib.root_module.addImport("shaders", shaders.getModule());
 
         // TODO: don't prefix artifact name with lib on linux, and turn dashes into underscores
-        const retro_mod = b.addModule("retro", .{ .source_file = .{ .path = "retro.zig" } });
-        lib.addModule("retro", retro_mod);
+        const retro_mod = b.addModule("retro", .{ .root_source_file = .{ .path = "retro.zig" } });
+        lib.root_module.addImport("retro", retro_mod);
         lib.rdynamic = true;
-        if (!lib.target.toTarget().isWasm()) lib.linkLibC();
+        if (!lib.rootModuleTarget().isWasm()) lib.linkLibC();
         if (std.mem.eql(u8, core.name, "basic-cairo")) {
             lib.linkSystemLibrary("cairo");
             lib.addIncludePath(.{ .path = "/usr/include/cairo" });

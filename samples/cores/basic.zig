@@ -1,6 +1,5 @@
 const std = @import("std");
 const retro = @import("retro");
-var framebuffer: [width * height]retro.Xrgb8888 = undefined;
 
 pub usingnamespace retro.ExportedCore(@This());
 
@@ -12,6 +11,8 @@ pub const system_info: retro.SystemInfo = .{
 const width = 256;
 const height = 192;
 const pitch = width * @sizeOf(retro.Xrgb8888);
+
+var framebuffer: [width * height]retro.Xrgb8888 = undefined;
 
 pub fn setEnvironment() void {
     //retro.env.log.init();

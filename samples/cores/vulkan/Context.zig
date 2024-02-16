@@ -566,18 +566,15 @@ fn initPipeline(
         .dynamic_state_count = dynamics.len,
     };
 
-    const triangle_vert = @embedFile("shaders/triangle.vert.spv");
-    const triangle_frag = @embedFile("shaders/triangle.frag.spv");
-    const triangle_vert_ptr: [*]const u32 = @ptrCast(@alignCast(triangle_vert.ptr));
-    const triangle_frag_ptr: [*]const u32 = @ptrCast(@alignCast(triangle_frag.ptr));
+    const shaders = @import("shaders");
 
     const vert = try vkd.createShaderModule(device, &.{
-        .code_size = triangle_vert.len,
-        .p_code = triangle_vert_ptr,
+        .code_size = shaders.vert.len,
+        .p_code = @ptrCast(&shaders.vert),
     }, null);
     const frag = try vkd.createShaderModule(device, &.{
-        .code_size = triangle_frag.len,
-        .p_code = triangle_frag_ptr,
+        .code_size = shaders.frag.len,
+        .p_code = @ptrCast(&shaders.frag),
     }, null);
 
     const shader_stages = [_]vk.PipelineShaderStageCreateInfo{ .{

@@ -1,10 +1,19 @@
 .{
     .name = "retro",
     .version = "0.1.0",
+    .paths = .{""},
     .dependencies = .{
+        .zigglgen = .{
+            .url = "https://github.com/castholm/zigglgen/releases/download/v0.1.0/zigglgen.tar.gz",
+            .hash = "122000c96b42752782a7628e8bd6d5d68f77ec6de0900a574aa4f000809f350d70ca",
+        },
+        .vulkan_zig = .{
+            .url = "https://github.com/Snektron/vulkan-zig/archive/2b6d7691f15cd037f8f2c85ddd81e41dad875b4d.tar.gz",
+            .hash = "122047b773db60d234bfe5018a5cd6a0f46ee19456a0c824499d75b8ea018cabdf80",
+        },
         .zigimg = .{
-            .url = "https://github.com/zigimg/zigimg/archive/40ddb16.tar.gz",
-            .hash = "12208c69b00540fe3f38893800fb6c89a9fe27b4a687de5d0462e498a43db4caeec0",
+            .url = "https://github.com/zigimg/zigimg/archive/2a8bbd3.tar.gz",
+            .hash = "1220df4bb9e6a6edb9351da17626fd81da465d0246eef5da299e4a3f0b21b7c02146",
         },
     },
 }

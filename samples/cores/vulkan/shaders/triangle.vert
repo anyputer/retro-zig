@@ -8,8 +8,7 @@ layout(std140, set = 0, binding = 0) uniform UBO
    mat4 MVP;
 };
 
-void main()
-{
+void main() {
    gl_Position = MVP * Position;
    vColor = Color;
 }

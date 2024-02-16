@@ -2,7 +2,7 @@
 
 const std = @import("std");
 const retro = @import("retro");
-pub const vk = @import("vk.zig");
+pub const vk = @import("vulkan");
 
 pub usingnamespace retro.ExportedCore(@This());
 

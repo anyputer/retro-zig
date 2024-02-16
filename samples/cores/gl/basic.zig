@@ -1,6 +1,6 @@
 const std = @import("std");
 const retro = @import("retro");
-const gl = @import("gl.zig");
+const gl = @import("gl");
 
 pub usingnamespace retro.ExportedCore(@This());
 
@@ -17,19 +17,15 @@ var hw_render = retro.env.hw.RenderCallback{
     .getProcAddress = undefined, // to be set by frontend
     .bottom_left_origin = true,
 };
-var gl_dispatch_table: gl.DispatchTable = undefined;
+var procs: gl.ProcTable = undefined;
 
 fn contextReset() callconv(.C) void {
-    _ = gl_dispatch_table.init(struct {
-        pub fn getCommandFnPtr(prefixed_command_name: [:0]const u8) ?retro.env.ProcAddress {
-            return hw_render.getProcAddress(prefixed_command_name);
-        }
-    });
-    gl.makeDispatchTableCurrent(&gl_dispatch_table);
+    _ = procs.init(hw_render.getProcAddress);
+    gl.makeProcTableCurrent(&procs);
 }
 
 fn contextDestroy() callconv(.C) void {
-    gl.makeDispatchTableCurrent(null);
+    gl.makeProcTableCurrent(null);
 }
 
 top_point_x: f32 = 0,
@@ -106,18 +102,18 @@ pub fn run(core: *@This()) void {
         };
     }
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, @intCast(hw_render.getCurrentFramebuffer()));
-    gl.viewport(0, 0, width, height);
-    gl.clearBufferfv(gl.COLOR, 0, &core.bg_color);
+    gl.BindFramebuffer(gl.FRAMEBUFFER, @intCast(hw_render.getCurrentFramebuffer()));
+    gl.Viewport(0, 0, width, height);
+    gl.ClearBufferfv(gl.COLOR, 0, &core.bg_color);
 
-    gl.begin(gl.TRIANGLES);
-    gl.color3f(0, 1, 1);
-    gl.vertex2f(-0.5, -0.5);
-    gl.color3f(1, 0, 1);
-    gl.vertex2f(0.5, -0.5);
-    gl.color3f(1, 1, 0);
-    gl.vertex2f(core.top_point_x, core.top_point_y);
-    gl.end();
+    gl.Begin(gl.TRIANGLES);
+    gl.Color3f(0, 1, 1);
+    gl.Vertex2f(-0.5, -0.5);
+    gl.Color3f(1, 0, 1);
+    gl.Vertex2f(0.5, -0.5);
+    gl.Color3f(1, 1, 0);
+    gl.Vertex2f(core.top_point_x, core.top_point_y);
+    gl.End();
 
     retro.audio.sample(0, 0);
     retro.video.refresh(retro.env.hw.frame_buffer_valid, width, height, 0);

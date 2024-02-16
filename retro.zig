@@ -1069,9 +1069,9 @@ pub const GetMemorySizeFn = fn (id: Memory) callconv(retro_callconv) usize;
 /// This is to reduce boilerplate and eliminate potential safety bugs.
 pub fn ExportedCore(comptime Core: type) type {
     return struct {
-        pub const std_options = struct {
-            pub const log_level = .debug;
-            pub const logFn = env.log.basicImpl;
+        pub const std_options = std.Options{
+            .log_level = .debug,
+            .logFn = env.log.basicImpl,
         };
 
         var core: Core = undefined;
