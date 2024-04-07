@@ -4,16 +4,17 @@
     .paths = .{""},
     .dependencies = .{
         .zigglgen = .{
-            .url = "https://github.com/castholm/zigglgen/releases/download/v0.1.0/zigglgen.tar.gz",
-            .hash = "122000c96b42752782a7628e8bd6d5d68f77ec6de0900a574aa4f000809f350d70ca",
+            .url = "https://github.com/castholm/zigglgen/releases/download/v0.2.1/zigglgen.tar.gz",
+            .hash = "122059d1ff6787eedb40771eabb0f04d04fe299bd1bae7b216c4a9d894719c2a148a",
         },
         .vulkan_zig = .{
-            .url = "https://github.com/Snektron/vulkan-zig/archive/2b6d7691f15cd037f8f2c85ddd81e41dad875b4d.tar.gz",
-            .hash = "122047b773db60d234bfe5018a5cd6a0f46ee19456a0c824499d75b8ea018cabdf80",
+            .url = "https://github.com/Snektron/vulkan-zig/archive/e608695.tar.gz",
+            .hash = "122061f0a16599a1c296a1847d6e34652e9b20ce3aff919d75562383ef0ba873df77",
         },
-        .zigimg = .{
-            .url = "https://github.com/zigimg/zigimg/archive/2a8bbd3.tar.gz",
-            .hash = "1220df4bb9e6a6edb9351da17626fd81da465d0246eef5da299e4a3f0b21b7c02146",
-        },
+        // TODO: disabled until dependency works with latest zig
+        //.zigimg = .{
+        //    .url = "https://github.com/zigimg/zigimg/archive/8873f29.tar.gz",
+        //    .hash = "122019f6439545235af116d0d8eb81fde1ff05fdb070da57c723772c557f84c5bf39",
+        //},
     },
 }

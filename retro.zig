@@ -345,7 +345,7 @@ pub const env = struct {
 
     /// Exits the libretro core.
     pub fn exit() noreturn {
-        if (shutdown()) unreachable else std.os.abort();
+        if (shutdown()) unreachable else std.process.abort();
     }
 
     pub fn getSystemDir() ?[*:0]const u8 {

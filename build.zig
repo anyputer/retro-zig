@@ -25,11 +25,12 @@ pub fn build(b: *std.Build) void {
             .path = "samples/cores/basic-cairo.zig",
             .desc = "Showcasing software rendering with the Cairo 2D graphics library",
         },
-        .{
-            .name = "viewer",
-            .path = "samples/cores/viewer.zig",
-            .desc = "A simple image viewer using zigimg",
-        },
+        // TODO: disabled until dependency works with latest zig
+        //.{
+        //    .name = "viewer",
+        //    .path = "samples/cores/viewer.zig",
+        //    .desc = "A simple image viewer using zigimg",
+        //},
         .{
             .name = "basic-gl",
             .path = "samples/cores/gl/basic.zig",
@@ -51,11 +52,12 @@ pub fn build(b: *std.Build) void {
             .single_threaded = core.single_threaded,
         });
 
-        const img = b.dependency("zigimg", .{
-            .target = target,
-            .optimize = optimize,
-        });
-        lib.root_module.addImport("zigimg", img.module("zigimg"));
+        // TODO: disabled until dependency works with latest zig
+        //const img = b.dependency("zigimg", .{
+        //    .target = target,
+        //    .optimize = optimize,
+        //});
+        //lib.root_module.addImport("zigimg", img.module("zigimg"));
 
         const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
             .api = .gl,
@@ -71,11 +73,7 @@ pub fn build(b: *std.Build) void {
         ).module("vulkan-zig"));
 
         const ShaderCompileStep = @import("vulkan_zig").ShaderCompileStep;
-        const shaders = ShaderCompileStep.create(
-            b,
-            &.{ "glslc", "-Os" },
-            "-o",
-        );
+        const shaders = ShaderCompileStep.create(b, &.{ "glslc", "--target-env=vulkan1.3", "-Os" }, "-o");
         shaders.add("vert", "samples/cores/vulkan/shaders/triangle.vert", .{});
         shaders.add("frag", "samples/cores/vulkan/shaders/triangle.frag", .{});
         lib.root_module.addImport("shaders", shaders.getModule());
