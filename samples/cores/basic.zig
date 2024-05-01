@@ -32,20 +32,6 @@ pub fn init() @This() {
     return .{};
 }
 
-pub fn deinit(_: *@This()) void {}
-
-pub fn run(_: *@This()) void {
-    retro.input.poll();
-    retro.audio.sample(0, 0);
-    retro.video.refresh(&framebuffer, width, height, pitch);
-}
-
-// TODO: maybe? it helps for documentation and safety
-//pub fn run(_: *@This(), ctx: retro.RunContext) void {
-//    ctx.input.poll();
-//    ctx.video.refresh(&framebuffer, width, height, pitch);
-//}
-
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
     if (!retro.env.setPixelFormat(.xrgb8888)) retro.env.exit();
     return .{
@@ -58,3 +44,15 @@ pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
         .timing = .{ .fps = 60, .sample_rate = 0 },
     };
 }
+
+pub fn run(_: *@This()) void {
+    retro.input.poll();
+    retro.audio.sample(0, 0);
+    retro.video.refresh(&framebuffer, width, height, pitch);
+}
+
+// TODO: maybe? it helps for documentation and safety
+//pub fn run(_: *@This(), ctx: retro.RunContext) void {
+//    ctx.input.poll();
+//    ctx.video.refresh(&framebuffer, width, height, pitch);
+//}

@@ -10,20 +10,14 @@ pub const system_info: retro.SystemInfo = .{
     .valid_extensions = "png|pbm|ppm|pcx|qoi|bmp|tga",
 };
 
-framebuffer: [*]const u8,
-width: u32,
-height: u32,
-pitch: usize,
+framebuffer: [*]const u8 = undefined,
+width: u32 = undefined,
+height: u32 = undefined,
+pitch: usize = undefined,
 
 pub fn setEnvironment() void {
     retro.env.log.init();
 }
-
-pub fn init() @This() {
-    return undefined;
-}
-
-pub fn deinit(_: *@This()) void {}
 
 pub fn run(core: *@This()) void {
     retro.input.poll();

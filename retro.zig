@@ -189,16 +189,15 @@ pub const Xrgb8888 = packed struct(u32) {
     r: u8 = 0,
     x: u8 = 0,
 
-    // TODO: are these consts defined correctly?
     // zig fmt: off
-    pub const red:     @This() = @bitCast(@as(u32, 0xFF0000_00));
-    pub const green:   @This() = @bitCast(@as(u32, 0x00FF00_00));
-    pub const blue:    @This() = @bitCast(@as(u32, 0x0000FF_00));
-    pub const cyan:    @This() = @bitCast(@as(u32, 0x00FFFF_00));
-    pub const magenta: @This() = @bitCast(@as(u32, 0xFF00FF_00));
-    pub const yellow:  @This() = @bitCast(@as(u32, 0xFFFF00_00));
+    pub const red:     @This() = @bitCast(@as(u32, 0x00_FF0000));
+    pub const green:   @This() = @bitCast(@as(u32, 0x00_00FF00));
+    pub const blue:    @This() = @bitCast(@as(u32, 0x00_0000FF));
+    pub const cyan:    @This() = @bitCast(@as(u32, 0x00_00FFFF));
+    pub const magenta: @This() = @bitCast(@as(u32, 0x00_FF00FF));
+    pub const yellow:  @This() = @bitCast(@as(u32, 0x00_FFFF00));
     pub const black:   @This() = .{};
-    pub const white:   @This() = @bitCast(@as(u32, 0xFFFFFF_00));
+    pub const white:   @This() = @bitCast(@as(u32, 0x00_FFFFFF));
     // zig fmt: on
 };
 
@@ -925,8 +924,8 @@ pub const audio = struct {
     pub var sample: *const SampleFn = if (std.debug.runtime_safety) dummySample else undefined;
     pub var sampleBatchCb: *const SampleBatchFn = if (std.debug.runtime_safety) dummySampleBatch else undefined;
 
-    pub fn sampleBatch(samples: [][2]i16) usize {
-        return sampleBatchCb(@as(samples.ptr, @ptrCast([*]const i16)), samples.len);
+    pub fn sampleBatch(samples: []const [2]i16) usize {
+        return sampleBatchCb(@ptrCast(samples.ptr), samples.len);
     }
 };
 
@@ -1165,13 +1164,13 @@ pub fn ExportedCore(comptime Core: type) type {
 
         pub export fn retro_serialize(data: [*]u8, size: usize) bool {
             return if (@hasDecl(Core, "serialize")) blk: {
-                break :blk @call(.always_inline, Core.serialize, .{data[0..size]});
+                break :blk @call(.always_inline, Core.serialize, .{ &core, data[0..size] });
             } else false;
         }
 
         pub export fn retro_unserialize(data: [*]const u8, size: usize) bool {
             return if (@hasDecl(Core, "unserialize")) blk: {
-                break :blk @call(.always_inline, Core.unserialize, .{data[0..size]});
+                break :blk @call(.always_inline, Core.unserialize, .{ &core, data[0..size] });
             } else false;
         }
 

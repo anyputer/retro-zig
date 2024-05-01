@@ -12,7 +12,8 @@ pub fn build(b: *std.Build) void {
         single_threaded: bool = true,
     };
 
-    // TODO: add more samples. image viewer, BytePusher, webgpu dawn example, small libretro frontend...
+    // TODO: https://github.com/ziglang/zig/issues/2231
+    // TODO: add more samples. webgpu dawn example, small libretro frontend...
     // TODO: add my demo frontend here
     const sample_cores = [_]SampleCore{
         .{
@@ -31,6 +32,11 @@ pub fn build(b: *std.Build) void {
         //    .path = "samples/cores/viewer.zig",
         //    .desc = "A simple image viewer using zigimg",
         //},
+        .{
+            .name = "bytepusher",
+            .path = "samples/cores/bytepusher.zig",
+            .desc = "A BytePusher VM",
+        },
         .{
             .name = "basic-gl",
             .path = "samples/cores/gl/basic.zig",

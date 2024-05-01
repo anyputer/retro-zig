@@ -53,12 +53,6 @@ pub fn setEnvironment() void {
     }, .{} }));
 }
 
-pub fn init() @This() {
-    return .{};
-}
-
-pub fn deinit(_: *@This()) void {}
-
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
     return .{
         .geometry = .{

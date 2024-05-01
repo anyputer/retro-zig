@@ -13,19 +13,13 @@ const width = 640;
 const height = 480;
 const stride = width * @sizeOf(retro.Rgb565);
 
-framebuffer: []retro.Rgb565,
-surface: *c.cairo_surface_t,
-cr: *c.cairo_t,
+framebuffer: []retro.Rgb565 = undefined,
+surface: *c.cairo_surface_t = undefined,
+cr: *c.cairo_t = undefined,
 
 pub fn setEnvironment() void {
     _ = retro.env.setSupportNoGame(true);
 }
-
-pub fn init() @This() {
-    return undefined;
-}
-
-pub fn deinit(_: *@This()) void {}
 
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
     if (!retro.env.setPixelFormat(.rgb565)) retro.env.exit();
