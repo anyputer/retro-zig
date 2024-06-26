@@ -5,7 +5,7 @@ const gl = @import("gl");
 pub usingnamespace retro.ExportedCore(@This());
 
 pub const system_info: retro.SystemInfo = .{
-    .library_name = "Zig Triangle",
+    .library_name = "Triangle Demo (OpenGL)",
     .library_version = "0.1.0",
 };
 

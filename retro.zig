@@ -596,7 +596,7 @@ pub const env = struct {
             pub const WaitSyncIndexFn = fn (handle: Handle) callconv(retro_callconv) void;
             pub const LockQueueFn = fn (handle: Handle) callconv(retro_callconv) void;
             pub const UnlockQueueFn = fn (handle: Handle) callconv(retro_callconv) void;
-            pub const SetSignalSemaphoreFn = fn (handle: Handle) callconv(retro_callconv) void;
+            pub const SetSignalSemaphoreFn = fn (handle: Handle) callconv(retro_callconv) void; // TODO: semaphore may be null
 
             pub const GetApplicationInfoFn = fn () callconv(retro_callconv) *const vk.ApplicationInfo;
 

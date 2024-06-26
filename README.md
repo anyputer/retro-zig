@@ -16,7 +16,7 @@ Consider giving a ⭐ if you like what you see!
 
 ## Getting started
 ### Prerequisites
-- ⚡ Zig 0.12 dev (latest as of February 2024)
+- ⚡ Zig 0.14 dev (latest as of June 2024)
 - 👾 RetroArch or another libretro frontend
 - 🖼️ Optional: Cairo graphics library (to build the Cairo example)
 
