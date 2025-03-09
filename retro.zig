@@ -23,10 +23,11 @@
 // TODO: take a lot of things out of the env namespace. like it should be retro.FrameTimeCallback not retro.env.FrameTimeCallback
 
 const std = @import("std");
+const builtin = @import("builtin");
 
-pub const allocator = if (@import("builtin").target.isWasm()) w: {
+pub const allocator = if (builtin.target.cpu.arch.isWasm()) w: {
     break :w std.heap.wasm_allocator;
-} else if (@import("builtin").link_libc)
+} else if (builtin.link_libc)
 c: {
     break :c std.heap.c_allocator;
 } else {
@@ -34,7 +35,7 @@ c: {
 };
 
 pub const api_version = 1;
-const retro_callconv = .C;
+const retro_callconv: std.builtin.CallingConvention = .c;
 
 pub const Device = enum(c_int) {
     none,
@@ -537,7 +538,7 @@ pub const env = struct {
             version_minor: c_uint = 0,
             cache_context: bool = true,
             contextDestroy: *const ContextResetFn,
-            debug_context: bool = @import("builtin").mode == .Debug,
+            debug_context: bool = builtin.mode == .Debug,
         };
 
         pub fn setRenderCallback(cb: *RenderCallback) bool {
@@ -713,7 +714,8 @@ pub const env = struct {
         return variable.value;
     }
 
-    pub fn setVariables(vars: [*:.{}]const Variable) bool {
+    // TODO: find an alternative to the .{} sentinel?
+    pub fn setVariables(vars: [*]const Variable) bool {
         return callback(.set_variables, @constCast(vars));
     }
 
@@ -1261,6 +1263,7 @@ pub fn validateExports() void {
         .{ .get_memory_data,            GetMemoryDataFn },
         .{ .get_memory_size,            GetMemorySizeFn },
     };
+    // zig fmt: on
 
     inline for (fns) |expected| {
         const symbol_name = "retro_" ++ @tagName(expected[0]);

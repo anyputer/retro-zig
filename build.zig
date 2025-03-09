@@ -74,7 +74,7 @@ pub fn build(b: *std.Build) void {
         });
         lib.root_module.addImport("retro", retro_mod);
         lib.rdynamic = true;
-        if (!lib.rootModuleTarget().isWasm()) lib.linkLibC();
+        if (!lib.rootModuleTarget().cpu.arch.isWasm()) lib.linkLibC();
         if (std.mem.eql(u8, core.name, "basic-cairo")) {
             lib.linkSystemLibrary("cairo");
             lib.addIncludePath(.{ .cwd_relative = "/usr/include/cairo" });
