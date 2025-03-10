@@ -41,7 +41,6 @@ const yellow = [4]f32{ 1, 1, 0, 0 };
 
 const width = 640;
 const height = 480;
-const pitch = width * @sizeOf(retro.Rgb565);
 
 pub fn setEnvironment() void {
     retro.env.log.init();
