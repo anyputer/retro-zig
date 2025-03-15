@@ -1,8 +1,6 @@
 // A fully featured BytePusher VM
 // for more info see: https://esolangs.org/wiki/BytePusher
 
-// TODO: heap allocate fb fallback, RGB565 support, reset (use persistent data from game info), fix retroarch menu garbled video output
-
 const std = @import("std");
 const retro = @import("retro");
 
@@ -13,11 +11,12 @@ const color_map = blk: {
     for (0..6) |r| for (0..6) |g| for (0..6) |b| {
         c[r * 36 + g * 6 + b] = .{ .r = r * 0x33, .g = g * 0x33, .b = b * 0x33 };
     };
-    @memset(c[216..], retro.Xrgb8888.black);
+    @memset(c[216..], .black);
     break :blk c;
 };
 
 ram: [std.math.maxInt(u24) + 8]u8 = undefined,
+fb: [256 * 256]retro.Xrgb8888 = undefined,
 
 pub const system_info: retro.SystemInfo = .{
     .library_name = "BytePusher",
@@ -66,23 +65,10 @@ pub fn run(bytepusher: *@This()) void {
     const pixels_addr = @as(u24, @intCast(bytepusher.ram[5])) << 16;
     const pixels = bytepusher.ram[pixels_addr .. pixels_addr + 256 * 256];
 
-    var fb = retro.env.Framebuffer{
-        .data = undefined,
-        .width = 256,
-        .height = 256,
-        .pitch = 256 * @sizeOf(retro.Xrgb8888),
-        .format = undefined,
-        .access_flags = .{ .write = true, .read = false },
-        .memory_flags = undefined,
-    };
-    if (retro.env.callback(.get_current_software_framebuffer, &fb)) {
-        const out_pixels: *[256 * 256]retro.Xrgb8888 = @alignCast(@ptrCast(fb.data));
-
-        for (pixels, out_pixels) |color_index, *out_pixel| {
-            out_pixel.* = color_map[color_index];
-        }
-        retro.video.refresh(fb.data, fb.width, fb.height, fb.pitch);
+    for (pixels, &bytepusher.fb) |color_index, *out_pixel| {
+        out_pixel.* = color_map[color_index];
     }
+    retro.video.refresh(&bytepusher.fb, 256, 256, 256 * @sizeOf(retro.Xrgb8888));
 
     const samples_addr = @as(u24, std.mem.readInt(u16, bytepusher.ram[6 .. 6 + 2], .big)) << 8;
     const samples: []i8 = @ptrCast(bytepusher.ram[samples_addr .. samples_addr +% 256]);
