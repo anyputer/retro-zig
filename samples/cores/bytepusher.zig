@@ -62,8 +62,8 @@ pub fn run(bytepusher: *@This()) void {
         pc = c;
     }
 
-    const pixels_addr = @as(u24, @intCast(bytepusher.ram[5])) << 16;
-    const pixels = bytepusher.ram[pixels_addr .. pixels_addr + 256 * 256];
+    const pixels_addr = @as(u24, bytepusher.ram[5]) << 16;
+    const pixels: *[256 * 256]u8 = @ptrCast(bytepusher.ram[pixels_addr..]);
 
     for (pixels, &bytepusher.fb) |color_index, *out_pixel| {
         out_pixel.* = color_map[color_index];
@@ -71,7 +71,7 @@ pub fn run(bytepusher: *@This()) void {
     retro.video.refresh(&bytepusher.fb, 256, 256, 256 * @sizeOf(retro.Xrgb8888));
 
     const samples_addr = @as(u24, std.mem.readInt(u16, bytepusher.ram[6 .. 6 + 2], .big)) << 8;
-    const samples: []i8 = @ptrCast(bytepusher.ram[samples_addr .. samples_addr +% 256]);
+    const samples: *[256]i8 = @ptrCast(bytepusher.ram[samples_addr..]);
     var out_samples: [256][2]i16 = undefined;
 
     for (samples, &out_samples) |sample, *stereo| {
@@ -100,7 +100,7 @@ pub fn getMemoryData(bytepusher: *@This(), id: retro.Memory) ?[*]u8 {
     return switch (id) {
         .system_ram => &bytepusher.ram,
         .video_ram => blk: {
-            const pixels_addr = @as(u24, @intCast(bytepusher.ram[5])) << 16;
+            const pixels_addr = @as(u24, bytepusher.ram[5]) << 16;
             break :blk bytepusher.ram[pixels_addr..].ptr;
         },
         else => null,
