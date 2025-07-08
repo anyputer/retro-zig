@@ -2,13 +2,18 @@ const std = @import("std");
 const retro = @import("retro");
 const img = @import("zigimg");
 
-pub usingnamespace retro.ExportedCore(@This());
-
-pub const system_info: retro.SystemInfo = .{
-    .library_name = @typeName(@This()),
-    .library_version = "0.1.0",
-    .valid_extensions = "png|pbm|ppm|pcx|qoi|bmp|tga",
+pub const std_options = std.Options{
+    .log_level = .debug,
+    .logFn = retro.env.log.basicImpl,
 };
+
+comptime {
+    retro.exportCore(@This(), .{
+        .library_name = @typeName(@This()),
+        .library_version = "0.1.0",
+        .valid_extensions = "png|pbm|ppm|pcx|qoi|bmp|tga",
+    });
+}
 
 framebuffer: [*]const u8 = undefined,
 width: u32 = undefined,
@@ -17,6 +22,18 @@ pitch: usize = undefined,
 
 pub fn setEnvironment() void {
     retro.env.log.init();
+}
+
+pub fn getSystemAvInfo(core: *@This()) retro.SystemAvInfo {
+    return .{
+        .geometry = .{
+            .base_width = @intCast(core.width),
+            .base_height = @intCast(core.height),
+            .max_width = @intCast(core.width),
+            .max_height = @intCast(core.height),
+        },
+        .timing = .{ .fps = 60, .sample_rate = 0 },
+    };
 }
 
 pub fn run(core: *@This()) void {
@@ -92,16 +109,4 @@ pub fn loadGame(core: *@This(), game: ?*const retro.GameInfo) bool {
 
 pub fn unloadGame(core: *@This()) void {
     retro.allocator.free(@constCast(core.framebuffer)[0 .. core.width * core.height]);
-}
-
-pub fn getSystemAvInfo(core: *@This()) retro.SystemAvInfo {
-    return .{
-        .geometry = .{
-            .base_width = @intCast(core.width),
-            .base_height = @intCast(core.height),
-            .max_width = @intCast(core.width),
-            .max_height = @intCast(core.height),
-        },
-        .timing = .{ .fps = 60, .sample_rate = 0 },
-    };
 }

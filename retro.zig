@@ -1062,179 +1062,201 @@ pub const GetMemoryDataFn = fn (id: Memory) callconv(retro_callconv) ?[*]u8;
 pub const GetMemorySizeFn = fn (id: Memory) callconv(retro_callconv) usize;
 
 // TODO: should the library's callbacks that are set be accessed only via this?
-// like, the env callback isn't in the retro module anymore, but ExportedCore exposes an env namespace which can specialize itself like
+// like, the env callback isn't in the retro module anymore, but exportCore exposes an env namespace which can specialize itself like
 // for example using a global namespace (like .basicgl) to make getVariable(.bg_color) possible
 // TODO: describe the interface in detail and easy to navigate in documentation
 /// Exports a simplified yet powerful libretro interface.
 ///
 /// This is to reduce boilerplate and eliminate potential safety bugs.
-pub fn ExportedCore(comptime Core: type) type {
-    return struct {
-        pub const std_options = std.Options{
-            .log_level = .debug,
-            .logFn = env.log.basicImpl,
-        };
-
+pub fn exportCore(comptime Core: type, system_info: SystemInfo) void {
+    const exports = struct {
         var core: Core = undefined;
 
         // TODO: check function types for better error messages, look how mach does it
         // TODO: consider not making these public? or maybe we want that?
 
-        pub export fn retro_api_version() c_uint {
+        pub fn retro_api_version() callconv(retro_callconv) c_uint {
             return api_version;
         }
 
-        pub export fn retro_set_environment(cb: *const env.CallbackFn) void {
+        pub fn retro_set_environment(cb: *const env.CallbackFn) callconv(retro_callconv) void {
             env.callback = cb;
             //env.log.init(); // TODO: maybe hide log init?
             if (@hasDecl(Core, "setEnvironment")) blk: {
                 break :blk @call(.always_inline, Core.setEnvironment, .{});
             }
         }
-        pub export fn retro_set_video_refresh(cb: *const video.RefreshFn) void {
+
+        pub fn retro_set_video_refresh(cb: *const video.RefreshFn) callconv(retro_callconv) void {
             video.refreshCb = cb;
             if (@hasDecl(Core, "setVideoRefresh")) blk: {
                 break :blk @call(.always_inline, Core.setVideoRefresh, .{});
             }
         }
-        pub export fn retro_set_audio_sample(cb: *const audio.SampleFn) void {
+
+        pub fn retro_set_audio_sample(cb: *const audio.SampleFn) callconv(retro_callconv) void {
             audio.sample = cb;
             if (@hasDecl(Core, "setAudioSample")) blk: {
                 break :blk @call(.always_inline, Core.setAudioSample, .{});
             }
         }
-        pub export fn retro_set_audio_sample_batch(cb: *const audio.SampleBatchFn) void {
+
+        pub fn retro_set_audio_sample_batch(cb: *const audio.SampleBatchFn) callconv(retro_callconv) void {
             audio.sampleBatchCb = cb;
             if (@hasDecl(Core, "setAudioSampleBatch")) blk: {
                 break :blk @call(.always_inline, Core.setAudioSampleBatch, .{});
             }
         }
-        pub export fn retro_set_input_poll(cb: *const input.PollFn) void {
+
+        pub fn retro_set_input_poll(cb: *const input.PollFn) callconv(retro_callconv) void {
             input.poll = cb;
             if (@hasDecl(Core, "setInputPoll")) blk: {
                 break :blk @call(.always_inline, Core.setInputPoll, .{});
             }
         }
-        pub export fn retro_set_input_state(cb: *const input.StateFn) void {
+
+        pub fn retro_set_input_state(cb: *const input.StateFn) callconv(retro_callconv) void {
             input.state = cb;
             if (@hasDecl(Core, "setInputState")) blk: {
                 break :blk @call(.always_inline, Core.setInputState, .{});
             }
         }
 
-        pub export fn retro_init() void {
+        pub fn retro_init() callconv(retro_callconv) void {
             core = if (@hasDecl(Core, "init")) Core.init() else Core{};
         }
 
-        pub export fn retro_deinit() void {
+        pub fn retro_deinit() callconv(retro_callconv) void {
             if (@hasDecl(Core, "deinit")) blk: {
                 break :blk @call(.always_inline, Core.deinit, .{&core});
             }
         }
 
-        pub export fn retro_get_system_info(info: *SystemInfo) void {
-            info.* = Core.system_info;
+        pub fn retro_get_system_info(info: *SystemInfo) callconv(retro_callconv) void {
+            info.* = system_info;
         }
 
-        pub export fn retro_get_system_av_info(info: *SystemAvInfo) void {
+        pub fn retro_get_system_av_info(info: *SystemAvInfo) callconv(retro_callconv) void {
             info.* = @call(.always_inline, Core.getSystemAvInfo, .{&core});
         }
 
-        pub export fn retro_set_controller_port_device(port: c_uint, device: Device) void {
+        pub fn retro_set_controller_port_device(port: c_uint, device: Device) callconv(retro_callconv) void {
             if (@hasDecl(Core, "setControllerPortDevice")) blk: {
                 break :blk @call(.always_inline, Core.setControllerPortDevice, .{ &core, port, device });
             }
         }
 
-        pub export fn retro_reset() void {
+        pub fn retro_reset() callconv(retro_callconv) void {
             if (@hasDecl(Core, "reset")) blk: {
                 break :blk @call(.always_inline, Core.reset, .{&core});
             }
         }
 
-        pub export fn retro_run() void {
+        pub fn retro_run() callconv(retro_callconv) void {
             if (@hasDecl(Core, "run")) blk: {
                 break :blk @call(.always_inline, Core.run, .{&core});
             }
         }
 
-        pub export fn retro_serialize_size() usize {
+        pub fn retro_serialize_size() callconv(retro_callconv) usize {
             return if (@hasDecl(Core, "serializeSize")) blk: {
                 break :blk @call(.always_inline, Core.serializeSize, .{&core});
             } else 0;
         }
 
-        pub export fn retro_serialize(data: [*]u8, size: usize) bool {
+        pub fn retro_serialize(data: [*]u8, size: usize) callconv(retro_callconv) bool {
             return if (@hasDecl(Core, "serialize")) blk: {
                 break :blk @call(.always_inline, Core.serialize, .{ &core, data[0..size] });
             } else false;
         }
 
-        pub export fn retro_unserialize(data: [*]const u8, size: usize) bool {
+        pub fn retro_unserialize(data: [*]const u8, size: usize) callconv(retro_callconv) bool {
             return if (@hasDecl(Core, "unserialize")) blk: {
                 break :blk @call(.always_inline, Core.unserialize, .{ &core, data[0..size] });
             } else false;
         }
 
-        pub export fn retro_cheat_reset() void {
+        pub fn retro_cheat_reset() callconv(retro_callconv) void {
             if (@hasDecl(Core, "cheatReset")) blk: {
                 break :blk @call(.always_inline, Core.cheatReset, .{&core});
             }
         }
 
-        pub export fn retro_cheat_set(index: c_uint, enabled: bool, code: ?[*:0]const u8) void {
+        pub fn retro_cheat_set(index: c_uint, enabled: bool, code: ?[*:0]const u8) callconv(retro_callconv) void {
             if (@hasDecl(Core, "cheatSet")) blk: {
                 break :blk @call(.always_inline, Core.cheatSet, .{ index, enabled, code });
             }
         }
 
-        pub export fn retro_load_game(game: ?*const GameInfo) bool {
+        pub fn retro_load_game(game: ?*const GameInfo) callconv(retro_callconv) bool {
             return if (@hasDecl(Core, "loadGame")) blk: {
                 break :blk @call(.always_inline, Core.loadGame, .{ &core, game });
             } else true;
         }
 
-        pub export fn retro_load_game_special(game_type: c_uint, info: [*]const GameInfo, num_info: usize) bool {
+        pub fn retro_load_game_special(game_type: c_uint, info: [*]const GameInfo, num_info: usize) callconv(retro_callconv) bool {
             return if (@hasDecl(Core, "loadGameSpecial")) blk: {
                 break :blk @call(.always_inline, Core.loadGameSpecial, .{ game_type, info[0..num_info] });
             } else false;
         }
 
-        pub export fn retro_unload_game() void {
+        pub fn retro_unload_game() callconv(retro_callconv) void {
             if (@hasDecl(Core, "unloadGame")) blk: {
                 break :blk @call(.always_inline, Core.unloadGame, .{&core});
             }
         }
 
-        pub export fn retro_get_region() Region {
+        pub fn retro_get_region() callconv(retro_callconv) Region {
             return if (@hasDecl(Core, "getRegion")) blk: {
                 break :blk @call(.always_inline, Core.getRegion, .{&core});
             } else .ntsc;
         }
 
-        pub export fn retro_get_memory_data(id: Memory) ?[*]u8 {
+        pub fn retro_get_memory_data(id: Memory) callconv(retro_callconv) ?[*]u8 {
             return if (@hasDecl(Core, "getMemoryData")) blk: {
                 break :blk @call(.always_inline, Core.getMemoryData, .{ &core, id });
             } else null;
         }
 
-        pub export fn retro_get_memory_size(id: Memory) usize {
+        pub fn retro_get_memory_size(id: Memory) callconv(retro_callconv) usize {
             return if (@hasDecl(Core, "getMemorySize")) blk: {
                 break :blk @call(.always_inline, Core.getMemorySize, .{ &core, id });
             } else 0;
         }
-
-        comptime {
-            validateExports();
-        }
     };
+
+    @export(&exports.retro_api_version, .{ .name = "retro_api_version" });
+    @export(&exports.retro_set_environment, .{ .name = "retro_set_environment" });
+    @export(&exports.retro_set_video_refresh, .{ .name = "retro_set_video_refresh" });
+    @export(&exports.retro_set_audio_sample, .{ .name = "retro_set_audio_sample" });
+    @export(&exports.retro_set_audio_sample_batch, .{ .name = "retro_set_audio_sample_batch" });
+    @export(&exports.retro_set_input_poll, .{ .name = "retro_set_input_poll" });
+    @export(&exports.retro_set_input_state, .{ .name = "retro_set_input_state" });
+    @export(&exports.retro_init, .{ .name = "retro_init" });
+    @export(&exports.retro_deinit, .{ .name = "retro_deinit" });
+    @export(&exports.retro_get_system_info, .{ .name = "retro_get_system_info" });
+    @export(&exports.retro_get_system_av_info, .{ .name = "retro_get_system_av_info" });
+    @export(&exports.retro_set_controller_port_device, .{ .name = "retro_set_controller_port_device" });
+    @export(&exports.retro_reset, .{ .name = "retro_reset" });
+    @export(&exports.retro_run, .{ .name = "retro_run" });
+    @export(&exports.retro_serialize_size, .{ .name = "retro_serialize_size" });
+    @export(&exports.retro_serialize, .{ .name = "retro_serialize" });
+    @export(&exports.retro_unserialize, .{ .name = "retro_unserialize" });
+    @export(&exports.retro_cheat_reset, .{ .name = "retro_cheat_reset" });
+    @export(&exports.retro_cheat_set, .{ .name = "retro_cheat_set" });
+    @export(&exports.retro_load_game, .{ .name = "retro_load_game" });
+    @export(&exports.retro_load_game_special, .{ .name = "retro_load_game_special" });
+    @export(&exports.retro_unload_game, .{ .name = "retro_unload_game" });
+    @export(&exports.retro_get_region, .{ .name = "retro_get_region" });
+    @export(&exports.retro_get_memory_data, .{ .name = "retro_get_memory_data" });
+    @export(&exports.retro_get_memory_size, .{ .name = "retro_get_memory_size" });
+
+    validateExports(exports);
 }
 
 // TODO: consider whether it would be a better design to export the functions via a struct
 /// Validates that the libretro API symbols are exported correctly.
-pub fn validateExports() void {
-    const root = @import("root");
-
+pub fn validateExports(comptime Core: type) void {
     // zig fmt: off
     const fns = [_]struct { @TypeOf(.enum_literal), type }{
         .{ .api_version,                ApiVersionFn },
@@ -1267,8 +1289,8 @@ pub fn validateExports() void {
 
     inline for (fns) |expected| {
         const symbol_name = "retro_" ++ @tagName(expected[0]);
-        if (@hasDecl(root, symbol_name)) {
-            const f = @field(root, symbol_name);
+        if (@hasDecl(Core, symbol_name)) {
+            const f = @field(Core, symbol_name);
             std.debug.assert(@TypeOf(f) == expected[1]);
             // TODO: check if pub export fn and not just a pub fn
         } else @compileError(
@@ -1276,7 +1298,7 @@ pub fn validateExports() void {
         );
     }
 
-    std.debug.assert(root.retro_api_version() == api_version);
+    std.debug.assert(Core.retro_api_version() == api_version);
 
     // TODO:
     //const InvalidInfo: extern struct {

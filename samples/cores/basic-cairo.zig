@@ -2,12 +2,17 @@ const std = @import("std");
 const retro = @import("retro");
 const c = @cImport(@cInclude("cairo.h"));
 
-pub usingnamespace retro.ExportedCore(@This());
-
-pub const system_info: retro.SystemInfo = .{
-    .library_name = "Cairo Test",
-    .library_version = "0.1.0",
+pub const std_options = std.Options{
+    .log_level = .debug,
+    .logFn = retro.env.log.basicImpl,
 };
+
+comptime {
+    retro.exportCore(@This(), .{
+        .library_name = "Cairo Test",
+        .library_version = "0.1.0",
+    });
+}
 
 const width = 640;
 const height = 480;

@@ -2,12 +2,17 @@ const std = @import("std");
 const retro = @import("retro");
 const gl = @import("gl");
 
-pub usingnamespace retro.ExportedCore(@This());
-
-pub const system_info: retro.SystemInfo = .{
-    .library_name = "Triangle Demo (OpenGL)",
-    .library_version = "0.1.0",
+pub const std_options = std.Options{
+    .log_level = .debug,
+    .logFn = retro.env.log.basicImpl,
 };
+
+comptime {
+    retro.exportCore(@This(), .{
+        .library_name = "Triangle Demo (OpenGL)",
+        .library_version = "0.1.0",
+    });
+}
 
 var hw_render = retro.env.hw.RenderCallback{
     .context_type = .opengl,

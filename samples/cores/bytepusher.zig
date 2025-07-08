@@ -4,7 +4,13 @@
 const std = @import("std");
 const retro = @import("retro");
 
-pub usingnamespace retro.ExportedCore(@This());
+comptime {
+    retro.exportCore(@This(), .{
+        .library_name = "BytePusher",
+        .library_version = "0.1.0",
+        .valid_extensions = "bp|BytePusher",
+    });
+}
 
 const color_map = blk: {
     var c: [256]retro.Xrgb8888 = undefined;
@@ -18,21 +24,7 @@ const color_map = blk: {
 ram: [std.math.maxInt(u24) + 8]u8 = undefined,
 fb: [256 * 256]retro.Xrgb8888 = undefined,
 
-pub const system_info: retro.SystemInfo = .{
-    .library_name = "BytePusher",
-    .library_version = "0.1.0",
-    .valid_extensions = "bp|BytePusher",
-};
-
 pub fn setEnvironment() void {}
-
-pub fn loadGame(bytepusher: *@This(), game: ?*const retro.GameInfo) bool {
-    @memset(&bytepusher.ram, 0);
-    const len = @min(game.?.size, std.math.maxInt(u24));
-    @memcpy(bytepusher.ram[0..len], game.?.data.?[0..len]);
-
-    return true;
-}
 
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
     if (!retro.env.setPixelFormat(.xrgb8888)) retro.env.exit();
@@ -93,6 +85,14 @@ pub fn serialize(bytepusher: *@This(), data: []u8) bool {
 
 pub fn unserialize(bytepusher: *@This(), data: []const u8) bool {
     @memcpy(bytepusher.ram[0..std.math.maxInt(u24)], data);
+    return true;
+}
+
+pub fn loadGame(bytepusher: *@This(), game: ?*const retro.GameInfo) bool {
+    @memset(&bytepusher.ram, 0);
+    const len = @min(game.?.size, std.math.maxInt(u24));
+    @memcpy(bytepusher.ram[0..len], game.?.data.?[0..len]);
+
     return true;
 }
 

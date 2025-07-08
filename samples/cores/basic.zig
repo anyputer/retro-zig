@@ -1,12 +1,17 @@
 const std = @import("std");
 const retro = @import("retro");
 
-pub usingnamespace retro.ExportedCore(@This());
+//pub const std_options = std.Options{
+//    .log_level = .debug,
+//    .logFn = retro.env.log.basicImpl,
+//};
 
-pub const system_info: retro.SystemInfo = .{
-    .library_name = @typeName(@This()),
-    .library_version = "0.1.0",
-};
+comptime {
+    retro.exportCore(@This(), .{
+        .library_name = @typeName(@This()),
+        .library_version = "0.1.0",
+    });
+}
 
 const width = 256;
 const height = 192;
@@ -17,19 +22,6 @@ var framebuffer: [width * height]retro.Xrgb8888 = undefined;
 pub fn setEnvironment() void {
     //retro.env.log.init();
     _ = retro.env.setSupportNoGame(true);
-}
-
-pub fn init() @This() {
-    for (0..height) |j| for (0..width) |i| {
-        const r = @as(f32, @floatFromInt(i)) / (width - 1);
-        const g = @as(f32, @floatFromInt(j)) / (height - 1);
-        framebuffer[j * width + i] = .{
-            .r = std.math.lossyCast(u8, 256 * @sqrt(r)),
-            .g = std.math.lossyCast(u8, 256 * g),
-            .b = std.math.lossyCast(u8, 256 * @sqrt(g)),
-        };
-    };
-    return .{};
 }
 
 pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
@@ -43,6 +35,19 @@ pub fn getSystemAvInfo(_: *@This()) retro.SystemAvInfo {
         },
         .timing = .{ .fps = 60, .sample_rate = 0 },
     };
+}
+
+pub fn init() @This() {
+    for (0..height) |j| for (0..width) |i| {
+        const r = @as(f32, @floatFromInt(i)) / (width - 1);
+        const g = @as(f32, @floatFromInt(j)) / (height - 1);
+        framebuffer[j * width + i] = .{
+            .r = std.math.lossyCast(u8, 256 * @sqrt(r)),
+            .g = std.math.lossyCast(u8, 256 * g),
+            .b = std.math.lossyCast(u8, 256 * @sqrt(g)),
+        };
+    };
+    return .{};
 }
 
 pub fn run(_: *@This()) void {
